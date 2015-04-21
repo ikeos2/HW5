@@ -200,10 +200,8 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 		Node<E> parent = current.getParent();
 		current.setParent(parent.getParent());
 		// point the grandparent to the new parent(aka grandchild)
-		if (parent.isLeftChild())
-			current.getParent().setLeft(current);
-		if (parent.isRightChild())
-			current.getParent().setRight(current);
+		if (parent.isLeftChild()) current.getParent().setLeft(current);
+		if (parent.isRightChild()) current.getParent().setRight(current);
 
 		// figure out how splaying should be done
 		if (current.isLeftChild()) { // left child
@@ -213,6 +211,7 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 
 			current.setRight(parent);
 			parent.setParent(current);
+			return;
 		}
 		if (current.isRightChild()) { // right child
 			parent.setRight(current.getLeft());
@@ -221,6 +220,7 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 
 			current.setLeft(parent);
 			parent.setParent(current);
+			return;
 		}
 	}
 
@@ -234,6 +234,37 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 	 */
 	protected void zigZig(Node<E> current) {
 		// TODO
+		Node<E> x = current;
+		Node<E> p = current.getParent();
+		Node<E> g = p.getParent();
+		
+		//point the grandparent's parent to the new grandparent - aka current
+		if(g.isLeftChild()) g.getParent().setLeft(x);
+		if(g.isRightChild()) g.getParent().setRight(x);
+		
+		//establish basic hierarchy
+		x.setParent(g.getParent());
+		p.setParent(x);
+		g.setParent(p);
+		
+		if(x.isLeftChild()){
+			p.setLeft(x.getRight());
+			x.getRight().setParent(p);
+			g.setLeft(p.getRight());
+			p.getRight().setParent(g);
+			
+			x.setRight(p);
+			p.setRight(g);
+			return;
+		}
+		if(x.isRightChild()){
+			g.setRight(p.getLeft());
+			p.setRight(x.getLeft());
+			
+			x.setLeft(p);
+			p.setLeft(g);
+			return;
+		}
 	}
 
 	/**
