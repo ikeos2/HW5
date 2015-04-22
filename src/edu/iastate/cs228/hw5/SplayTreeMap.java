@@ -21,6 +21,7 @@ public class SplayTreeMap<K extends Comparable<? super K>, V> {
 	 */
 	public SplayTreeMap() {
 		// TODO
+		entrySet = new SplayTreeSet<MapEntry<K, V>>(); 
 	}
 
 	/**

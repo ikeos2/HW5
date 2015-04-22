@@ -96,8 +96,7 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 		// TODO
 		if (key == null)
 			throw new NullPointerException();
-		if (contains(key))
-			;
+		if (contains(key));
 		return true;
 	}
 
@@ -114,7 +113,18 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 	 */
 	@Override
 	public boolean remove(Object obj) {
+		
+		//REDO THIS - Need to remove based on hash, not node
+		//https://bb.its.iastate.edu/webapps/discussionboard/do/message?action=list_messages&forum_id=_174859_1&nav=discussion_board&conf_id=_107369_1&course_id=_41863_1&message_id=_1526103_1#msg__1526103_1Id
+		
 		// TODO
+		//verify we are dealing with a node
+		if(obj.getClass() != root.getClass()) return false;
+		//search for the thing
+		
+		//if we find it, remove it
+		//then splay the largest value to the point of removal, put obj's right child as largest value's right child
+		//see the notes if you forget
 		return true;
 	}
 
@@ -151,6 +161,7 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 	 */
 	protected void unlinkNode(Node<E> n) {
 		// TODO
+		remove(n);
 	}
 
 	@Override
@@ -182,7 +193,10 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 	 *            node at which to splay.
 	 */
 	protected void splay(Node<E> current) {
-		// TODO
+		// TODO test this
+		while(current.isLeftChild() || current.isRightChild()) zig(current);
+		
+		root = current;
 	}
 
 	/**
@@ -193,6 +207,7 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 	 */
 	protected void zig(Node<E> current) {
 		// TODO test this
+		if(current == null) return;
 		if (current.getParent() == null) { // root
 			return; // no action needed, you are trying to splay the root.
 		}
@@ -346,5 +361,11 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 		public void remove() {
 			// TODO
 		}
+	}
+	
+	private Node<E> findMax(Node<E> obj){
+		if(obj == null) obj = root; //if we don't provide a node, assume root
+		while(obj.getRight()!=null) obj = obj.getRight();
+		return obj;
 	}
 }
