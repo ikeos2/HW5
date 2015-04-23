@@ -11,8 +11,7 @@ import java.util.NoSuchElementException;
  * iterator.
  *
  */
-public class SplayTreeSet<E extends Comparable<? super E>> extends
-		AbstractSet<E> {
+public class SplayTreeSet<E extends Comparable<? super E>> extends AbstractSet<E> {
 	// The root of the tree containing this set's items
 	Node<E> root;
 
@@ -262,7 +261,22 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 	 *         no successor
 	 */
 	protected Node successor(Node<E> n) {
-		// TODO
+		if(n == null) return null;
+		
+		if(n.getRight() != null){//has right child
+			return findMin(n.getRight());
+		}
+		
+		return null;
+	}
+	
+	protected Node pre(Node<E> n){
+		if(n == null) return null;
+		
+		if(n.getLeft() != null){//has left children
+			return findMax(n.getLeft());
+		}
+		
 		return null;
 	}
 
@@ -274,7 +288,6 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 	 *            node to be removed
 	 */
 	protected void unlinkNode(Node<E> n) {
-		// TODO
 		remove(n);
 	}
 
@@ -294,8 +307,38 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 	 */
 	@Override
 	public String toString() {
-		// TODO
-		return null;
+		return out(root,"");
+	}
+	
+	private String out(Node<E> n, String spaces){
+		String val = "";
+		//if we are a mighty leaf
+		if(n.getLeft() == null && n.getRight() == null) return ("    " + spaces + n.getData().toString() + "\n");
+		
+		//if we have only one child
+		//right only
+		if(n.getRight() != null && n.getLeft() == null){
+			val += spaces + n.getData().toString() + "\n";
+			val += "    " + spaces + "null\n";
+			val += "    " + spaces + n.getRight().getData().toString() + "\n";
+			return val;
+		}
+		//left only
+		if(n.getRight() == null && n.getLeft() != null){
+			val += spaces + n.getData().toString() + "\n";
+			val += "    " + spaces + n.getLeft().getData().toString() + "\n";
+			val += "    " + spaces + "null\n";
+			return val;
+		}
+			
+		//has both children
+		val += spaces + n.getData() + "\n";
+		val += out(n.getLeft(), "    " + spaces);
+		val += out(n.getRight(), "    " + spaces);
+		
+		val += "\n";
+		
+		return val;
 	}
 
 	/**
@@ -307,7 +350,6 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 	 *            node at which to splay.
 	 */
 	protected void splay(Node<E> current) {
-		// TODO test this
 		if(root == null) return;
 		
 		while(current.isLeftChild() || current.isRightChild()) zig(current);
@@ -322,7 +364,6 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 	 *            node at which to perform the zig operation.
 	 */
 	protected void zig(Node<E> current) {
-		// TODO test this
 		if(current == null) return;
 		if (current.getParent() == null) { // root
 			return; // no action needed, you are trying to splay the root.
@@ -364,7 +405,6 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 	 *            node at which to perform the zig-zig operation.
 	 */
 	protected void zigZig(Node<E> current) {
-		// TODO
 		Node<E> x = current;
 		Node<E> p = current.getParent();
 		Node<E> g = p.getParent();
@@ -405,7 +445,6 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 	 *            node to perform the zig-zag operation on
 	 */
 	protected void zigZag(Node<E> current) {
-		// TODO
 		Node<E> x = current;
 		Node<E> p = current.getParent();
 		Node<E> g = p.getParent();
@@ -451,37 +490,37 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 	 */
 	private class SplayTreeIterator implements Iterator<E> {
 		Node<E> cursor;
-
+		
 		public SplayTreeIterator() {
-			// TODO
-			cursor = root;
-			while (cursor.getLeft() != null){
-				// Keep pushing the cursor down
-				cursor = cursor.getLeft();
-			}
+			cursor = findMin(root);
 		}
 
 		@Override
 		public boolean hasNext() {
-			// TODO
-			return true;
+			return successor(cursor) != null;
 		}
 
 		@Override
 		public E next() {
-			// TODO
-			return null;
+			cursor = successor(cursor);
+			return cursor.getData();
 		}
 
 		@Override
 		public void remove() {
-			// TODO
+			unlinkNode(pre(cursor));
 		}
 	}
 	
 	private Node<E> findMax(Node<E> obj){
 		if(obj == null) obj = root; //if we don't provide a node, assume root
 		while(obj.getRight()!=null) obj = obj.getRight();
+		return obj;
+	}
+	
+	private Node<E> findMin(Node<E> obj){
+		if(obj == null) obj = root; //if we don't provide a node, assume root
+		while(obj.getLeft()!=null) obj = obj.getLeft();
 		return obj;
 	}
 }
