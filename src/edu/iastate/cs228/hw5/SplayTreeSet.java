@@ -23,7 +23,6 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 	 * Default constructor. Creates a new, empty, SplayTreeSet
 	 */
 	public SplayTreeSet() {
-		// TODO
 		root = null;
 		size = 0;
 	}
@@ -57,27 +56,47 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 	 * @return true if the element is contained in the tree and false otherwise
 	 */
 	@Override
-	public boolean contains(Object obj) {
-		if (obj.getClass() != root.getClass())
-			return false;
+	public boolean contains(Object obj){
+		if(obj == null) return false;
+		
+		//make sure we are dealing with an E object
+		if (obj.getClass() != root.getData().getClass()) return false;
+		
 		Node<E> current = root;
-		Node<E> goal = (Node<E>) obj;
-		// find node
-		while (current.equals(goal) == false) {
-			// are we at the end of the tree?
-			if (current.getLeft() == null && current.getRight() == null)
-				break;
+		Node<E> goal = new Node<E>((E)obj, null,null);
+		// find node, while we the iterator(current) does not equal the goal, keep moving
+		while (current.getData().equals(obj) == false) {
+			// are we at the end of the tree? if so splay at current and return false
+			if (current.getLeft() == null && current.getRight() == null) {
+				splay(current);
+				return false;
+			}
+			
 			// check if we should move left or right
-			if (goal.getData().compareTo(current.getData()) == 1) { // figure
-																	// out what
-																	// this
-																	// does...s
-
+			if (goal.getData().compareTo(current.getData()) == 1) {
+				//goal is bigger than current
+				if(current.getRight() == null){
+					//at the end of the tree, it's not here
+					splay(current);
+					return false;
+				}
+				//move current = current.right
+				current = current.getRight();
+			}
+			if (goal.getData().compareTo(current.getData()) == -1) {
+				//goal is smaller than current
+				if(current.getLeft()==null){
+					//we have found the end of the tree and it's not there
+					splay(current);
+					return false;
+					}
+				//move current to current.left
+				current = current.getLeft();
 			}
 		}
-		// splay the tree at current
+		//We've found the node!
+		//splay the tree at current
 		splay(current);
-
 		return true;
 	}
 
@@ -93,10 +112,50 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 	 */
 	@Override
 	public boolean add(E key) {
-		// TODO
-		if (key == null)
-			throw new NullPointerException();
-		if (contains(key));
+		if (key == null) throw new NullPointerException();
+		
+		//if the value is already here, return false. Contains will splay at the node.
+		if (findEntry(key) != null) {
+			contains(key);
+			return false;
+		}
+		
+		Node<E> val = new Node<E>(key, null,null);
+		
+		//We know now that the value isn't here and it's a real value, lets find the best place to place it.
+		Node<E> current = root;
+		//push current down left or right until it is at the bottom of some tree, then splay it to the top
+		boolean going = true;
+		while(going){
+			if(current.getData().compareTo(key) > 0){
+				//current is larger
+				//if theres a child, move to it
+				if(current.getLeft() != null){
+					current = current.getLeft();
+				} else {
+					//otherwise set the new value as the child
+					current.setLeft(val);
+					val.setParent(current);
+					going = false;
+				}
+			}
+			if(current.getData().compareTo(key) < 0){
+				//current is smaller
+				//if there's a child, move to it
+				if(current.getRight() != null){
+					current = current.getRight();
+				} else {
+					//otherwise set the new value as the child
+					current.setRight(val);
+					val.setParent(current);
+					going = false;
+				}
+			}
+			
+		}
+		
+		size++;
+		splay(val);
 		return true;
 	}
 
@@ -113,18 +172,41 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 	 */
 	@Override
 	public boolean remove(Object obj) {
+		//verify we are dealing with an E class value
+		if(obj.getClass() != root.getData().getClass()) return false;
 		
-		//REDO THIS - Need to remove based on hash, not node
-		//https://bb.its.iastate.edu/webapps/discussionboard/do/message?action=list_messages&forum_id=_174859_1&nav=discussion_board&conf_id=_107369_1&course_id=_41863_1&message_id=_1526103_1#msg__1526103_1Id
+		Node<E> goal = findEntry((E)obj);
 		
-		// TODO
-		//verify we are dealing with a node
-		if(obj.getClass() != root.getClass()) return false;
-		//search for the thing
+		//we don't have it
+		if(goal == null){
+			//splay
+			contains(obj);
+			return false;
+		}
 		
-		//if we find it, remove it
-		//then splay the largest value to the point of removal, put obj's right child as largest value's right child
-		//see the notes if you forget
+		//we do have it
+		Node<E> parent = goal.getParent();
+		boolean isLeft = false;
+		if(goal.isLeftChild()) isLeft = true;
+		Node<E> left = goal.getLeft();
+		Node<E> right = goal.getRight();
+		
+		//cut off left, put max value at the top
+		left.setParent(null);
+		left = findMax(left);
+		//move the new found max to the top
+		while(left.getParent() != null) zig(left);
+		//left now points to the root of the left tree which is also the largest value in the left tree.
+		
+		//join the right
+		right.setParent(left);
+		
+		//reattach to the tree
+		left.setParent(parent);	
+		if(isLeft) left.getParent().setLeft(left);
+		else left.getParent().setRight(left);
+		
+		size--;
 		return true;
 	}
 
@@ -136,8 +218,40 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 	 * @return the node containing key, or null if not found
 	 */
 	protected Node findEntry(E key) {
-		// TODO
-		return null;
+		//make sure we are dealing with an E object
+				if (key.getClass() != root.getData().getClass()) return null;
+				
+				Node<E> current = root;
+				// find node, while we the iterator(current) does not equal the goal, keep moving
+				while (current.getData().equals(key) == false) {
+					// are we at the end of the tree? if so splay at current and return false
+					if (current.getLeft() == null && current.getRight() == null) {
+						return null;
+					}
+					
+					// check if we should move left or right
+					if (key.compareTo(current.getData()) == 1) {
+						//goal is bigger than current
+						if(current.getRight() == null){
+							//at the end of the tree, it's not here
+							return null;
+						}
+						//move current = current.right
+						current = current.getRight();
+					}
+					if (key.compareTo(current.getData()) == -1) {
+						//goal is smaller than current
+						if(current.getLeft()==null){
+							//we have found the end of the tree and it's not there
+							return null;
+							}
+						//move current to current.left
+						current = current.getLeft();
+					}
+				}
+				//We've found the node!
+				//splay the tree at current
+				return current;
 	}
 
 	/**
@@ -194,6 +308,8 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 	 */
 	protected void splay(Node<E> current) {
 		// TODO test this
+		if(root == null) return;
+		
 		while(current.isLeftChild() || current.isRightChild()) zig(current);
 		
 		root = current;
@@ -260,7 +376,7 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends
 		//establish basic hierarchy
 		x.setParent(g.getParent());
 		p.setParent(x);
-		g.setParent(p);
+		g.setParent(p); 
 		
 		if(x.isLeftChild()){
 			p.setLeft(x.getRight());
