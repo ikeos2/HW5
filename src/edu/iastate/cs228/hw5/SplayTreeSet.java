@@ -121,6 +121,13 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends AbstractSet<E
 		
 		Node<E> val = new Node<E>(key, null,null);
 		
+		//if we are the first element
+		if(root == null){
+			root = val;
+			size++;
+			return true;
+		}
+		
 		//We know now that the value isn't here and it's a real value, lets find the best place to place it.
 		Node<E> current = root;
 		//push current down left or right until it is at the bottom of some tree, then splay it to the top
@@ -364,6 +371,7 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends AbstractSet<E
 	 *            node at which to perform the zig operation.
 	 */
 	protected void zig(Node<E> current) {
+		// TODO: this may not work, there isn't a whole of null checking... or well not enough
 		if(current == null) return;
 		if (current.getParent() == null) { // root
 			return; // no action needed, you are trying to splay the root.
@@ -376,21 +384,28 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends AbstractSet<E
 		if (parent.isRightChild()) current.getParent().setRight(current);
 
 		// figure out how splaying should be done
-		if (current.isLeftChild()) { // left child
+		//if (current.isLeftChild()) { // left child
+		if(parent.getLeft() == current){ //left child
 			parent.setLeft(current.getRight());
+			
 			if (current.getLeft() != null)
 				current.getLeft().setParent(parent);
 
-			current.setRight(parent);
+			if(current.getRight()!= null)
+				current.setRight(parent);
+			
 			parent.setParent(current);
 			return;
 		}
 		if (current.isRightChild()) { // right child
 			parent.setRight(current.getLeft());
+			
 			if (current.getRight() != null)
 				current.getRight().setParent(parent);
 
-			current.setLeft(parent);
+			if(current.getLeft() != null)
+				current.setLeft(parent);
+			
 			parent.setParent(current);
 			return;
 		}
