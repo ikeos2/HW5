@@ -4,10 +4,16 @@ public class Testing {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		Node root = new Node(12,null,null);
-		Node root2 = new Node(2,null,null);
+		SplayTreeSet<Integer> main = new SplayTreeSet<Integer>();
 		
-		System.out.println(root.getData().compareTo(root2.getData()));
+		main.add(16);
+		main.add(15);
+		main.add(15);
+		main.add(13);
+		main.add(14);
+		main.add(17);
+		
+		System.out.println(main.toString());
 	}
 
 }

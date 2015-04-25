@@ -224,40 +224,42 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends AbstractSet<E
 	 * @return the node containing key, or null if not found
 	 */
 	protected Node findEntry(E key) {
+		if(key == null) return null;
+		if(root == null) return null;
 		//make sure we are dealing with an E object
-				if (key.getClass() != root.getData().getClass()) return null;
-				
-				Node<E> current = root;
-				// find node, while we the iterator(current) does not equal the goal, keep moving
-				while (current.getData().equals(key) == false) {
-					// are we at the end of the tree? if so splay at current and return false
-					if (current.getLeft() == null && current.getRight() == null) {
-						return null;
-					}
-					
-					// check if we should move left or right
-					if (key.compareTo(current.getData()) == 1) {
-						//goal is bigger than current
-						if(current.getRight() == null){
-							//at the end of the tree, it's not here
-							return null;
-						}
-						//move current = current.right
-						current = current.getRight();
-					}
-					if (key.compareTo(current.getData()) == -1) {
-						//goal is smaller than current
-						if(current.getLeft()==null){
-							//we have found the end of the tree and it's not there
-							return null;
-							}
-						//move current to current.left
-						current = current.getLeft();
-					}
+		if (key.getClass() != root.getData().getClass()) return null;
+		
+		Node<E> current = root;
+		// find node, while we the iterator(current) does not equal the goal, keep moving
+		while (current.getData().equals(key) == false) {
+			// are we at the end of the tree? if so splay at current and return false
+			if (current.getLeft() == null && current.getRight() == null) {
+				return null;
+			}
+			
+			// check if we should move left or right
+			if (key.compareTo(current.getData()) == 1) {
+				//goal is bigger than current
+				if(current.getRight() == null){
+					//at the end of the tree, it's not here
+					return null;
 				}
-				//We've found the node!
-				//splay the tree at current
-				return current;
+				//move current = current.right
+				current = current.getRight();
+			}
+			if (key.compareTo(current.getData()) == -1) {
+				//goal is smaller than current
+				if(current.getLeft()==null){
+					//we have found the end of the tree and it's not there
+					return null;
+					}
+				//move current to current.left
+				current = current.getLeft();
+			}
+		}
+		//We've found the node!
+		//splay the tree at current
+		return current;
 	}
 
 	/**
@@ -318,9 +320,11 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends AbstractSet<E
 	}
 	
 	private String out(Node<E> n, String spaces){
+		if(n == null) return "";
+		
 		String val = "";
 		//if we are a mighty leaf
-		if(n.getLeft() == null && n.getRight() == null) return ("    " + spaces + n.getData().toString() + "\n");
+		if(n.getLeft() == null && n.getRight() == null) return (spaces + n.getData().toString() + "\n");
 		
 		//if we have only one child
 		//right only
@@ -357,7 +361,7 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends AbstractSet<E
 	 *            node at which to splay.
 	 */
 	protected void splay(Node<E> current) {
-		if(root == null) return;
+		if(current == null || root == null || size == 1) return;
 		
 		while(current.isLeftChild() || current.isRightChild()) zig(current);
 		
@@ -394,8 +398,7 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends AbstractSet<E
 			if(current.getRight()!= null)
 				current.setRight(parent);
 			
-			parent.setParent(current);
-			return;
+			current.setRight(parent);
 		}
 		if (current.isRightChild()) { // right child
 			parent.setRight(current.getLeft());
@@ -406,9 +409,10 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends AbstractSet<E
 			if(current.getLeft() != null)
 				current.setLeft(parent);
 			
-			parent.setParent(current);
-			return;
+			current.setLeft(parent);
 		}
+		parent.setParent(current);
+		return;
 	}
 
 	/**

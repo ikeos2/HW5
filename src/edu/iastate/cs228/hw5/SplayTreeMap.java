@@ -20,7 +20,6 @@ public class SplayTreeMap<K extends Comparable<? super K>, V> {
 	 * Default constructor. Creates a new, empty, SplayTreeMap
 	 */
 	public SplayTreeMap() {
-		// TODO
 		entrySet = new SplayTreeSet<MapEntry<K, V>>(); 
 	}
 
