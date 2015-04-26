@@ -186,7 +186,7 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends AbstractSet<E
 		//we don't have it
 		if(goal == null){
 			//splay
-			contains(obj);
+			splay(goal);
 			return false;
 		}
 		
@@ -231,7 +231,7 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends AbstractSet<E
 		
 		Node<E> current = root;
 		// find node, while we the iterator(current) does not equal the goal, keep moving
-		while (current.getData().equals(key) == false) {
+		while (current.getData().compareTo(key) != 0) {
 			// are we at the end of the tree? if so splay at current and return false
 			if (current.getLeft() == null && current.getRight() == null) {
 				return null;
@@ -521,6 +521,7 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends AbstractSet<E
 
 		@Override
 		public E next() {
+			if(successor(cursor) == null) throw new NoSuchElementException();
 			cursor = successor(cursor);
 			return cursor.getData();
 		}
@@ -531,13 +532,13 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends AbstractSet<E
 		}
 	}
 	
-	private Node<E> findMax(Node<E> obj){
+	protected Node<E> findMax(Node<E> obj){
 		if(obj == null) obj = root; //if we don't provide a node, assume root
 		while(obj.getRight()!=null) obj = obj.getRight();
 		return obj;
 	}
 	
-	private Node<E> findMin(Node<E> obj){
+	protected Node<E> findMin(Node<E> obj){
 		if(obj == null) obj = root; //if we don't provide a node, assume root
 		while(obj.getLeft()!=null) obj = obj.getLeft();
 		return obj;

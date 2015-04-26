@@ -46,7 +46,11 @@ public class SplayTreeMap<K extends Comparable<? super K>, V> {
 	 *
 	 */
 	public V get(K key) {
-		// TODO
+		MapEntry<K, V> find = new MapEntry<K, V>(key,null);
+		MapEntry<K, V> found = (MapEntry<K, V>) entrySet.findEntry(find).getData();
+		if(found != null)
+			return found.value;
+		
 		return null;
 	}
 
@@ -56,8 +60,8 @@ public class SplayTreeMap<K extends Comparable<? super K>, V> {
 	 *
 	 */
 	public boolean containsKey(K key) {
-		// TODO
-		return false;
+		MapEntry<K, V> val = new MapEntry<K, V>(key, null);
+		return entrySet.contains(val);
 	}
 
 	/**
@@ -69,7 +73,20 @@ public class SplayTreeMap<K extends Comparable<? super K>, V> {
 	 *
 	 */
 	public V put(K key, V value) {
-		// TODO
+		MapEntry<K, V> val = new MapEntry<K, V>(key,value);
+		Node<MapEntry<K, V>> find = entrySet.findMin(null);
+		//search for it
+		while(entrySet.successor(find) != null){
+			//if we have it, find it, change the value and return the old
+			if(find.getData().key == key){
+				V val2 = find.getData().value;
+				find.setData(val);
+				return val2;
+			} else {
+				find = entrySet.successor(find);
+			}
+		}
+		//if we dont
 		return null;
 	}
 
@@ -82,8 +99,12 @@ public class SplayTreeMap<K extends Comparable<? super K>, V> {
 	 *
 	 */
 	public V remove(K key) {
-		// TODO
-		return null;
+		MapEntry<K, V> val = new MapEntry<K, V>(key, null);
+		MapEntry<K, V> found = (MapEntry<K, V>) entrySet.findEntry(val).getData();
+		if(found == null)
+			return null;
+		entrySet.remove(found);
+		return found.value;
 	}
 
 	/**
@@ -92,8 +113,14 @@ public class SplayTreeMap<K extends Comparable<? super K>, V> {
 	 *
 	 */
 	public SplayTreeSet<K> keySet() {
-		// TODO
-		return null;
+		SplayTreeSet<K> out = new SplayTreeSet<K>();
+		
+		Node<MapEntry<K, V>> cur = entrySet.getRoot();
+		while(entrySet.successor(cur) != null){
+			out.add(cur.getData().key);
+		}
+		
+		return out;
 	}
 
 	/**
@@ -104,9 +131,11 @@ public class SplayTreeMap<K extends Comparable<? super K>, V> {
 	 *
 	 */
 	public ArrayList<V> values() {
-		// TODO
 		ArrayList<V> outgoing = new ArrayList<V>();
-
+		Node<MapEntry<K, V>> cur = entrySet.getRoot();
+		while(entrySet.successor(cur) != null){
+			outgoing.add(cur.getData().value);
+		}
 		return outgoing;
 	}
 
