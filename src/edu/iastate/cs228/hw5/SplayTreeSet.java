@@ -11,6 +11,15 @@ import java.util.NoSuchElementException;
  * iterator.
  *
  */
+
+/**
+ * 
+ * @author Alex orman
+ *
+ */
+
+
+
 public class SplayTreeSet<E extends Comparable<? super E>> extends AbstractSet<E> {
 	// The root of the tree containing this set's items
 	Node<E> root;
@@ -133,7 +142,8 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends AbstractSet<E
 		//push current down left or right until it is at the bottom of some tree, then splay it to the top
 		boolean going = true;
 		while(going){
-			if(current.getData().compareTo(key) > 0){
+			int compare = current.getData().compareTo(key);
+			if(compare > 0){
 				//current is larger
 				//if theres a child, move to it
 				if(current.getLeft() != null){
@@ -145,7 +155,7 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends AbstractSet<E
 					going = false;
 				}
 			}
-			if(current.getData().compareTo(key) < 0){
+			if(compare < 0){
 				//current is smaller
 				//if there's a child, move to it
 				if(current.getRight() != null){
@@ -205,7 +215,8 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends AbstractSet<E
 		//left now points to the root of the left tree which is also the largest value in the left tree.
 		
 		//join the right
-		right.setParent(left);
+		if(right != null)
+			right.setParent(left);
 		
 		//reattach to the tree
 		left.setParent(parent);	
@@ -320,35 +331,40 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends AbstractSet<E
 	}
 	
 	private String out(Node<E> n, String spaces){
-		if(n == null) return "";
+		if(n == null) return spaces + "null\n";
 		
 		String val = "";
 		//if we are a mighty leaf
-		if(n.getLeft() == null && n.getRight() == null) return (spaces + n.getData().toString() + "\n");
+//		if(n.getLeft() == null && n.getRight() == null){
+//			//if(n.isRightChild()) val += spaces + "null\n";
+//			val += (spaces + n.getData().toString() + "\n");
+//			//if(n.isLeftChild()) val += spaces + "null\n";
+//			return val;
+//		}
 		
-		//if we have only one child
-		//right only
-		if(n.getRight() != null && n.getLeft() == null){
-			val += spaces + n.getData().toString() + "\n";
-			val += "    " + spaces + "null\n";
-			val += "    " + spaces + n.getRight().getData().toString() + "\n";
-			return val;
-		}
-		//left only
-		if(n.getRight() == null && n.getLeft() != null){
-			val += spaces + n.getData().toString() + "\n";
-			val += "    " + spaces + n.getLeft().getData().toString() + "\n";
-			val += "    " + spaces + "null\n";
-			return val;
-		}
+//		//if we have only one child
+//		//right only
+//		if(n.getRight() != null && n.getLeft() == null){
+//			val += spaces + n.getData().toString() + "\n";
+//			val += "    " + spaces + "null\n";
+//			val += "    " + spaces + n.getRight().getData().toString() + "\n";
+//			return val;
+//		}
+//		//left only
+//		if(n.getRight() == null && n.getLeft() != null){
+//			val += spaces + n.getData().toString() + "\n";
+//			val += "    " + spaces + n.getLeft().getData().toString() + "\n";
+//			val += "    " + spaces + "null\n";
+//			return val;
+//		}
 			
-		//has both children
 		val += spaces + n.getData() + "\n";
-		val += out(n.getLeft(), "    " + spaces);
-		val += out(n.getRight(), "    " + spaces);
-		
-		val += "\n";
-		
+		String val2 = out(n.getLeft(), "    " + spaces) + out(n.getRight(), "    " + spaces);
+
+		//make sure we don't add any empty trees
+		if(val2.equals("    " + spaces + "null\n" + "    " + spaces + "null\n")) {} //do nothing!
+		else val += val2;
+
 		return val;
 	}
 
@@ -375,11 +391,8 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends AbstractSet<E
 	 *            node at which to perform the zig operation.
 	 */
 	protected void zig(Node<E> current) {
-		// TODO: this may not work, there isn't a whole of null checking... or well not enough
-		if(current == null) return;
-		if (current.getParent() == null) { // root
-			return; // no action needed, you are trying to splay the root.
-		}
+		//if we don't have an Node or the Node is root
+		if(current == null || current.getParent() == null) return; 
 
 		Node<E> parent = current.getParent();
 		current.setParent(parent.getParent());
@@ -388,26 +401,20 @@ public class SplayTreeSet<E extends Comparable<? super E>> extends AbstractSet<E
 		if (parent.isRightChild()) current.getParent().setRight(current);
 
 		// figure out how splaying should be done
-		//if (current.isLeftChild()) { // left child
 		if(parent.getLeft() == current){ //left child
 			parent.setLeft(current.getRight());
 			
-			if (current.getLeft() != null)
-				current.getLeft().setParent(parent);
-
-			if(current.getRight()!= null)
-				current.setRight(parent);
+			if (current.getRight() != null)
+				current.getRight().setParent(parent);
 			
 			current.setRight(parent);
 		}
-		if (current.isRightChild()) { // right child
+
+		if(parent.getRight() == current){//right child
 			parent.setRight(current.getLeft());
 			
-			if (current.getRight() != null)
-				current.getRight().setParent(parent);
-
-			if(current.getLeft() != null)
-				current.setLeft(parent);
+			if (current.getLeft() != null)
+				current.getLeft().setParent(parent);
 			
 			current.setLeft(parent);
 		}

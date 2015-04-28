@@ -43,3 +43,8 @@ Temporary Items
 .apdisk
 *.class
 *.class
+bin/edu/iastate/cs228/hw5/SplayTreeSet.class
+bin/edu/iastate/cs228/hw5/SplayTreeMap.class
+bin/edu/iastate/cs228/hw5/SplayTreeMap.class
+bin/edu/iastate/cs228/hw5/SplayTreeSet$SplayTreeIterator.class
+bin/edu/iastate/cs228/hw5/SplayTreeSet.class

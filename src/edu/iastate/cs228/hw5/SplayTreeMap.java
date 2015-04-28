@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.ArrayList;
 
 /**
- *
+ * @author Alex Orman
  * An implementation of a map based on a splay tree.
  *
  */
